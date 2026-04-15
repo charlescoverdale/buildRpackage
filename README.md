@@ -1,58 +1,18 @@
 # buildRpackage
 
-A [Claude Code](https://claude.com/claude-code) skill for shipping R packages to CRAN. Seven-phase workflow from market-gap ideation through acceptance: `ideate`, `name`, `plan`, `build`, `check`, `submit`, `resubmit`.
+A [Claude Code](https://claude.com/claude-code) skill for shipping R packages to CRAN.
 
-Captures CRAN policies and common failure modes as playbook entries, so you ship cleanly on the first try.
+## Why this exists
 
+Hadley Wickham's [*R Packages*](https://r-pkgs.org) is the canonical book on how to structure an R package: `DESCRIPTION`, `R/`, roxygen, tests, the whole shape of it. Read it. But the book gets you to a working package, not a CRAN-accepted one.
 
-## Background
+CRAN itself has accumulated a thick layer of policy over two decades. Prof Ripley's rule that examples cannot write to the user's home directory, even via `tools::R_user_dir()`. The `globalenv()` prohibition that rejects packages even though they "work" locally. `\donttest` vs `\dontrun` behaving completely differently on CRAN's test systems. Version discipline: you cannot resubmit the same version number, so every round of reviewer feedback costs a patch bump. URL 404s in `DESCRIPTION` failing incoming feasibility when a pkgdown site is not yet deployed. Mozilla UA quirks for EU servers. Cross-platform path and encoding traps. The newbies queue for first submissions and the 2-10 business day wait that comes with it.
 
-If you are new to R packaging, here is what this skill is about.
+Each of these is a single line in the [CRAN Repository Policy](https://cran.r-project.org/web/packages/policies.html), and each one can bounce a first submission back for another review round. Most first-time submitters hit at least one. Reading through every policy, then auditing every function in your package for compliance, is exactly the kind of grinding checklist work that an AI agent is good at and a human is tired of.
 
-### What is an R package?
+This skill encodes the full workflow plus the fix pattern for each common rejection reason. Seven phases from market-gap ideation through acceptance (`ideate`, `name`, `plan`, `build`, `check`, `submit`, `resubmit`), plus a 12-category code audit and an optional academic-methods audit. It runs the policy scans, verifies every external URL, runs `R CMD check --as-cran`, and cross-checks your functions against the audit checklists before you hit submit.
 
-R packages are the standard way to share R code. When you type `install.packages("dplyr")` and then `library(dplyr)`, you are using someone else's package: a bundle of functions, documentation, datasets, and tests. Writing one is how you move from "R scripts I run locally" to "a tool other people (or your future self) can install, use, and cite."
-
-A package is a folder with a specific structure: a `DESCRIPTION` file (metadata), an `R/` folder (your code), a `man/` folder (documentation generated from roxygen comments), an optional `tests/` folder, and an optional `data/` folder. There are ~21,000 R packages on CRAN as of early 2026, with more on GitHub, Bioconductor, and r-universe.
-
-### What is CRAN?
-
-CRAN is the **Comprehensive R Archive Network**. It is the default package repository that R installs from when a user runs `install.packages()`. Getting a package on CRAN means:
-
-1. **Discoverability**: the package shows up in R's default search, in CRAN's task views, and in cran.r-project.org listings.
-2. **Trust**: CRAN enforces quality standards, so users can install packages without worrying about breakage.
-3. **Reach**: CRAN mirrors are installed everywhere (universities, research institutes, corporations). A CRAN package is accessible from the most locked-down corporate network.
-4. **Citability**: you get a stable DOI-like URL (`https://CRAN.R-project.org/package=yourpackage`) and a reproducible version history.
-
-The alternative is hosting your package on GitHub only. That works, but users need `devtools` or `remotes` installed, and many institutional computers disallow GitHub installs. CRAN is the higher bar but the wider audience.
-
-### How CRAN reviews packages
-
-This is the part that surprises newcomers. **CRAN packages undergo manual human review**, not just automated checks.
-
-When you submit a package, two things happen:
-
-1. **Automated pretest** (within minutes): CRAN's servers run `R CMD check --as-cran` on your package across multiple platforms (Linux, Windows, sometimes macOS). The result is emailed to you. This catches obvious problems (missing documentation, test failures, broken examples).
-
-2. **Human review** (2-10 business days): a CRAN team member, often Prof Brian Ripley, Uwe Ligges, or Konstanze Lauseker, actually reads your submission. They check that the package does what it claims, that the DESCRIPTION is accurate, that examples are sensible, and that no CRAN policies are violated.
-
-First-time submissions (and resubmissions of previously-archived packages) go to the **newbies queue**, which is human-reviewed in full. If anything is off, you get an email listing the issues. You fix them, bump the version, and resubmit.
-
-This review process is why CRAN packages are trustworthy and why getting one accepted feels like an achievement. It also means there is a long tail of ways to get rejected that are not obvious from reading the policies document.
-
-### Why this skill exists
-
-CRAN has many gotchas that you only learn by hitting them:
-
-- Prof Ripley's rule that examples must not write to the user's home directory, even via `tools::R_user_dir()` caching
-- The difference between `\donttest` and `\dontrun` in documentation (they behave very differently on CRAN's test systems)
-- The `globalenv()` manipulation trap (using `assign(x, y, envir = globalenv())` gets packages rejected even though it "works" locally)
-- URL 404s in DESCRIPTION failing incoming feasibility when a pkgdown site isn't deployed yet
-- Version number discipline (you cannot resubmit the same version number, so every round of feedback costs a patch bump)
-
-Hitting any of these sends your package back to the newbies queue for another 2-10 day wait. Most first-time submitters hit at least one.
-
-This skill encodes the full workflow plus the fix pattern for each common rejection reason. It takes a package from an empty directory through submission to CRAN, with the policy landmines documented and pre-checked, so you spend time on the package and not on the submission process.
+Built from shipping 17 R packages to CRAN. Every gotcha in the playbook is one that sent a previous package back to the newbies queue.
 
 
 ## Install
