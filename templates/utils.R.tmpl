@@ -1,0 +1,21 @@
+# Internal helpers (not exported)
+
+`%||%` <- function(a, b) if (is.null(a)) b else a
+
+# Package-level environment for runtime state (API keys, cached tokens, etc.)
+{{PREFIX}}_env <- new.env(parent = emptyenv())
+
+# Validate a numeric vector input. Extend as needed for your package's
+# domain-specific validation.
+validate_numeric <- function(x, arg = "x", allow_na = FALSE, require_positive = FALSE) {
+  if (!is.numeric(x)) {
+    cli::cli_abort("{.arg {arg}} must be a numeric vector.")
+  }
+  if (!allow_na && anyNA(x)) {
+    cli::cli_abort("{.arg {arg}} contains {.val NA} values.")
+  }
+  if (require_positive && any(x <= 0, na.rm = TRUE)) {
+    cli::cli_abort("{.arg {arg}} must be strictly positive.")
+  }
+  invisible(x)
+}

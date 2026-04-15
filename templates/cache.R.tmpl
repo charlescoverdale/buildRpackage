@@ -1,0 +1,79 @@
+# Cache management (api and data archetypes)
+
+#' @noRd
+{{PREFIX}}_cache_dir <- function() {
+  d <- getOption("{{PACKAGE_NAME}}.cache_dir",
+                 default = tools::R_user_dir("{{PACKAGE_NAME}}", "cache"))
+  if (!dir.exists(d)) dir.create(d, recursive = TRUE)
+  d
+}
+
+#' Clear the local {{PACKAGE_NAME}} cache
+#'
+#' Deletes all locally cached files. The next call to any data function
+#' will re-download.
+#'
+#' @return Invisibly returns `NULL`.
+#'
+#' @family configuration
+#' @export
+#' @examples
+#' \donttest{
+#' op <- options({{PACKAGE_NAME}}.cache_dir = tempdir())
+#' {{PREFIX}}_clear_cache()
+#' options(op)
+#' }
+{{PREFIX}}_clear_cache <- function() {
+  d <- {{PREFIX}}_cache_dir()
+  files <- list.files(d, full.names = TRUE)
+  n <- length(files)
+  if (n > 0L) unlink(files, recursive = TRUE)
+  cli::cli_inform("Removed {n} cached file{?s} from {.path {d}}.")
+  invisible(NULL)
+}
+
+#' Inspect the local {{PACKAGE_NAME}} cache
+#'
+#' @return A list with `dir`, `n_files`, `size_bytes`, `size_human`, `files`.
+#'
+#' @family configuration
+#' @export
+#' @examples
+#' \donttest{
+#' op <- options({{PACKAGE_NAME}}.cache_dir = tempdir())
+#' {{PREFIX}}_cache_info()
+#' options(op)
+#' }
+{{PREFIX}}_cache_info <- function() {
+  d <- {{PREFIX}}_cache_dir()
+  empty <- data.frame(name = character(0L), size_bytes = numeric(0L),
+                      modified = as.POSIXct(character(0L)),
+                      stringsAsFactors = FALSE)
+  paths <- list.files(d, full.names = TRUE)
+  if (length(paths) == 0L) {
+    return(list(dir = d, n_files = 0L, size_bytes = 0,
+                size_human = "0 B", files = empty))
+  }
+  info <- file.info(paths)
+  files <- data.frame(name = basename(paths),
+                      size_bytes = info$size,
+                      modified = info$mtime,
+                      stringsAsFactors = FALSE)
+  files <- files[order(-files$size_bytes), , drop = FALSE]
+  rownames(files) <- NULL
+  total <- sum(files$size_bytes)
+  list(dir = d, n_files = nrow(files), size_bytes = total,
+       size_human = .format_bytes(total), files = files)
+}
+
+#' @noRd
+.format_bytes <- function(x) {
+  if (is.na(x) || x < 1024) return(paste0(x, " B"))
+  units <- c("KB", "MB", "GB", "TB")
+  for (i in seq_along(units)) {
+    x <- x / 1024
+    if (x < 1024 || i == length(units)) {
+      return(sprintf("%.1f %s", x, units[i]))
+    }
+  }
+}

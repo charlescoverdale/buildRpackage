@@ -1,0 +1,12 @@
+# Local user config — contains personal info, do not commit
+user-config.yml
+
+# State tracking (optional, user-specific)
+state/
+
+# macOS
+.DS_Store
+
+# Editor
+.vscode/
+.idea/

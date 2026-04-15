@@ -1,0 +1,40 @@
+# API authentication (api archetype only)
+
+#' Set the {{PACKAGE_NAME}} API key
+#'
+#' Stores the API key used to authenticate requests. The key persists
+#' for the current R session. Alternatively, set the
+#' `{{API_KEY_ENVVAR}}` environment variable in your `.Renviron` file.
+#'
+#' Register for a free API key at {{API_REGISTRATION_URL}}.
+#'
+#' @param key Character. The API key.
+#'
+#' @return Invisible `NULL`.
+#'
+#' @family configuration
+#' @export
+#' @examples
+#' \dontrun{
+#' {{PREFIX}}_set_key("your_api_key_here")
+#' }
+{{PREFIX}}_set_key <- function(key) {
+  if (!is.character(key) || length(key) != 1L || !nzchar(key)) {
+    cli::cli_abort("{.arg key} must be a non-empty character string.")
+  }
+  {{PREFIX}}_env$api_key <- key
+  invisible(NULL)
+}
+
+#' @noRd
+{{PREFIX}}_get_key <- function() {
+  key <- {{PREFIX}}_env$api_key %||% Sys.getenv("{{API_KEY_ENVVAR}}", unset = "")
+  if (!nzchar(key)) {
+    cli::cli_abort(c(
+      "No {{PACKAGE_NAME}} API key found.",
+      "i" = "Set one with {.fn {{PREFIX}}_set_key} or the {.envvar {{API_KEY_ENVVAR}}} environment variable.",
+      "i" = "Register for a free key at {.url {{API_REGISTRATION_URL}}}."
+    ))
+  }
+  key
+}

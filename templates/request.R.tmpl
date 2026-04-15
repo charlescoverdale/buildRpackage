@@ -1,0 +1,47 @@
+# HTTP request helpers (api archetype, httr2)
+
+{{PREFIX}}_base_url <- "{{API_BASE_URL}}"
+
+#' @noRd
+{{PREFIX}}_request <- function(endpoint, ..., need_key = TRUE) {
+  url <- paste0({{PREFIX}}_base_url, endpoint)
+  params <- list(...)
+
+  req <- httr2::request(url)
+  req <- httr2::req_user_agent(req, "{{PACKAGE_NAME}} R package (https://github.com/{{GITHUB_USERNAME}}/{{PACKAGE_NAME}})")
+  req <- httr2::req_retry(req,
+    max_tries = 3L,
+    is_transient = function(resp) httr2::resp_status(resp) %in% c(429L, 503L)
+  )
+  req <- httr2::req_throttle(req, rate = 2)
+
+  if (need_key) {
+    key <- {{PREFIX}}_get_key()
+    params$api_key <- key
+  }
+
+  if (length(params) > 0L) {
+    req <- httr2::req_url_query(req, !!!params)
+  }
+
+  resp <- tryCatch(httr2::req_perform(req), error = function(e) {
+    cli::cli_abort(c(
+      "Failed to reach the {{PACKAGE_NAME}} API.",
+      "i" = "Check your internet connection.",
+      "x" = conditionMessage(e)
+    ))
+  })
+
+  status <- httr2::resp_status(resp)
+  if (status == 401L || status == 403L) {
+    cli::cli_abort(c(
+      "{{PACKAGE_NAME}} API rejected the credentials (HTTP {status}).",
+      "i" = "Check your API key."
+    ))
+  }
+  if (status >= 400L) {
+    cli::cli_abort("{{PACKAGE_NAME}} API returned HTTP {status}.")
+  }
+
+  httr2::resp_body_json(resp)
+}

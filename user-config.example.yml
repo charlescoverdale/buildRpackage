@@ -1,0 +1,71 @@
+# Copy this file to user-config.yml and edit the values.
+# The cran-package skill reads this file for all template substitutions
+# and style preferences. user-config.yml should be gitignored.
+
+author:
+  # Your name as it should appear in the package's Authors@R field.
+  name: "Your Name"
+  # Contact email CRAN reviewers will use.
+  email: "you@example.com"
+  # ORCID identifier (optional).
+  orcid: ""
+
+github:
+  # GitHub username or organisation that will host the package.
+  username: "yourusername"
+
+licence:
+  # One of: MIT, GPL-2, GPL-3, Apache-2.0
+  type: "MIT"
+
+description:
+  # Language field in DESCRIPTION. Most CRAN packages use en-US even
+  # when authors write British English. en-GB is also accepted.
+  language: "en-US"
+
+prose:
+  # Affects README and NEWS wording choices. Does not affect DESCRIPTION.
+  # One of: british, american
+  style: "american"
+  # Some CRAN reviewers flag em dashes. Set to false to scan for and
+  # remove em dashes from R/ and man/ files during the check phase.
+  em_dashes_allowed: false
+
+dependencies:
+  # Which HTTP client to use for API archetype packages.
+  # One of: httr2, httr
+  http_client: "httr2"
+  # Which JSON parser to use.
+  # One of: jsonlite, RcppSimdJson
+  json_parser: "jsonlite"
+  # Base dependencies that should appear in every package's Imports.
+  base_imports:
+    - "cli (>= 3.6.0)"
+
+conventions:
+  # Two-letter (e.g. "iq_"), three-letter (e.g. "ukh_"), or
+  # package-name (e.g. "inequality_") prefix style.
+  prefix_style: "two-letter"
+  # Scaffold S3 print/plot methods automatically for functions that
+  # return structured objects.
+  s3_methods: true
+  # Use pkgdown for documentation site generation.
+  use_pkgdown: false
+
+readme:
+  # Include CRAN status and downloads badges (will 404 until the
+  # package is actually on CRAN; set to false for pre-CRAN packages).
+  cran_badge: true
+  # Include lifecycle badge (stable, maturing, experimental).
+  lifecycle_badge: true
+  # Default lifecycle stage for new packages.
+  lifecycle_default: "stable"
+  # Include MIT licence badge.
+  licence_badge: true
+
+# Optional: paths used by the skill for state tracking and plan docs.
+paths:
+  # Where the skill writes plan documents during the plan phase.
+  plans_dir: "~/.claude/plans"
+  # Optional submission queue tracking. Leave blank to disable.
+  queue_file: "~/.claude/skills/cran-package/state/queue.jsonl"
