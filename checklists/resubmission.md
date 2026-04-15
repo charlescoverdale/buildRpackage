@@ -10,7 +10,7 @@ each issue:
 - [ ] Quote the exact text from the reviewer
 - [ ] Locate the corresponding code (file:line)
 - [ ] Classify against `playbook/` entries:
-  - Filespace write → `playbook/ripley-cache-policy.md`
+  - Filespace write → `playbook/cache-policy.md`
   - URL 404 → `playbook/url-404-in-description.md`
   - globalenv manipulation → `playbook/globalenv-manipulation.md`
   - Unused imports → `playbook/unused-importfrom.md`

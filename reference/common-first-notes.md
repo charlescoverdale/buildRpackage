@@ -65,7 +65,7 @@ mypkg_fn 0.02   0.01    7.23
 your examples/vignettes/tests in the user's home filespace"
 
 **Status**: Fatal.
-**Action**: See `playbook/ripley-cache-policy.md`.
+**Action**: See `playbook/cache-policy.md`.
 
 ## "Please add \value tags to your function documentation"
 

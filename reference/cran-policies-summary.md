@@ -94,7 +94,7 @@ Based on community experience with reviewers:
 ## See also
 
 - `donttest-vs-dontrun.md` — when to use each directive
-- `ripley-cache-policy.md` — the most common example-related rejection
+- `cache-policy.md` — the most common example-related rejection
 - `globalenv-manipulation.md` — how to avoid writing to the user's
   workspace
 - `url-404-in-description.md` — URL validation

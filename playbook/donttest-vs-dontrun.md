@@ -10,7 +10,7 @@ Both directives prevent an example from running under
 | `\donttest{}` | Yes | **Yes** | **Yes** |
 | `\dontrun{}` | Yes | **No** | **No** |
 
-Prof Ripley runs CRAN tests with `--run-donttest`, so `\donttest`
+CRAN runs tests with `--run-donttest`, so `\donttest`
 examples DO get executed on CRAN. `\dontrun` is truly "never run".
 
 ## When to use which

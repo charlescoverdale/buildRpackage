@@ -3,9 +3,8 @@
 ## What it is
 
 First-time CRAN submissions go to the "newbies" queue, which is
-processed by human reviewers (most notably Prof Brian Ripley and
-Konstanze Lauseker). The queue is slower than regular updates: expect
-2-10 business days for a first review.
+processed by human reviewers on the CRAN team. The queue is slower
+than regular updates: expect 2-10 business days for a first review.
 
 Archived packages being resubmitted also go through the newbies queue,
 even if the same author had other packages accepted before.

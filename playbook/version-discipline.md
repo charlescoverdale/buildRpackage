@@ -53,7 +53,7 @@
 ```markdown
 # mypackage 0.2.1
 
-* Fix: address CRAN feedback from Prof Ripley (2026-04-13).
+* Fix: address CRAN reviewer feedback (2026-04-13).
   Examples no longer write to the user's home filespace.
 ```
 

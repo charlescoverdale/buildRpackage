@@ -286,7 +286,7 @@ Input: reviewer email content (user pastes it).
 
 1. Parse the email for the specific issues flagged.
 2. Match each issue against `playbook/` entries. Common classifications:
-   - Ripley cache policy → `playbook/ripley-cache-policy.md`
+   - Cache policy → `playbook/cache-policy.md`
    - URL 404 → `playbook/url-404-in-description.md`
    - globalenv manipulation → `playbook/globalenv-manipulation.md`
    - Missing/extra imports → `playbook/unused-importfrom.md`

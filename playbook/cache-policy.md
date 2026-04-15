@@ -1,4 +1,4 @@
-# CRAN cache policy (the "Ripley rule")
+# CRAN cache policy
 
 ## The policy
 
@@ -7,8 +7,8 @@ outside of a session-temporary location. This includes any automatic
 cache directory created by `tools::R_user_dir(pkg, "cache")` or
 `rappdirs::user_cache_dir(pkg)`.
 
-The policy is enforced primarily during example checks. Prof Ripley
-runs `R CMD check --run-donttest` on CRAN's test systems. If any
+The policy is enforced primarily during example checks. CRAN
+runs `R CMD check --run-donttest` on its test systems. If any
 `\donttest` example creates directories under `~/.cache/` or
 equivalent, the package gets flagged.
 
