@@ -1,12 +1,12 @@
 ---
 name: cran-package
-description: End-to-end workflow for shipping an R package to CRAN. Covers ideation, naming, scoping, scaffolding, pre-flight checks, submission, and resubmission. Captures CRAN policies and common failure modes so you ship cleanly on the first try.
-argument-hint: "[phase] [package-name] — phase is one of: ideate, name, plan, build, check, submit, resubmit"
+description: End-to-end workflow for shipping an R package to CRAN. Covers ideation, naming, scoping, scaffolding, pre-flight checks, auditing, submission, and resubmission. Captures CRAN policies and common failure modes so you ship cleanly on the first try.
+argument-hint: "[phase] [package-name] — phase is one of: ideate, name, plan, build, check, audit, submit, resubmit"
 ---
 
 # /cran-package
 
-Seven-phase workflow for getting an R package onto CRAN and keeping it there.
+Eight-phase workflow for getting an R package onto CRAN and keeping it there.
 
 The skill is opinionated about **CRAN policies** (those are non-negotiable) and permissive about **conventions** (licence, prose style, HTTP library, etc. are user-configurable).
 
@@ -18,11 +18,14 @@ The skill is opinionated about **CRAN policies** (those are non-negotiable) and 
 | `name` | Check name and prefix availability | Validated name + prefix |
 | `plan` | Write a function-by-function scope document | `~/.claude/plans/<name>-scope.md` |
 | `build` | Scaffold the package from templates | Full package skeleton |
-| `check` | Pre-flight audit against CRAN policies | Pass/fail report with file:line |
+| `check` | Mechanical pre-flight against CRAN policies | Pass/fail report with file:line |
+| `audit` | Deep review (academic or code) | Scorecard with severity-ranked findings |
 | `submit` | Push to GitHub and submit to CRAN | Confirmation email prompt |
 | `resubmit` | Handle reviewer feedback | Fixed package, new version |
 
 Invoke with `/cran-package <phase> [args]`. If no phase is given, ask the user which phase they want.
+
+**`check` vs `audit`**: `check` is the mechanical CRAN compliance pass (URLs resolve, no `globalenv` manipulation, `\donttest` redirects cache to tempdir). `audit` is the deep review that goes beyond `R CMD check` to catch bugs, numerical instability, weak tests, and academic-credibility gaps. Run both before submission.
 
 ## First-time setup
 
@@ -154,7 +157,76 @@ Hard-stop items (must be fixed before proceeding):
 
 Do not proceed to `submit` if any hard-stop fails.
 
-### Phase 6: `submit`
+### Phase 6: `audit`
+
+Deep review beyond `R CMD check`. Two sub-modes:
+
+#### `audit academic <pkg>`
+
+For packages that implement named statistical, mathematical, or
+scientific methods. Verifies that the package stands up to academic
+scrutiny. Uses:
+
+- `checklists/academic-audit.md` as the driving checklist
+- `reference/academic-audit-checklist.md` for the detailed heuristic
+- `reference/formula-verification.md` for domain-specific formula
+  traps (inequality, causal inference, time series, etc.)
+- `reference/test-adequacy.md` for the four-level test quality model
+
+Output: a scorecard with pass/warning/blocker for each category,
+plus a concrete plan to address blockers before release.
+
+Ten categories audited:
+1. Literature coverage (citations, DOIs, primary sources)
+2. Formula verification (matches published formula)
+3. Reference implementation agreement (cross-checks)
+4. Incumbent comparison (what's different vs existing packages)
+5. Python comparison (porting from or competing with)
+6. Methodological transparency (`@details` for non-obvious code)
+7. Limitations disclosure (README section)
+8. Test adequacy (Level 2+ tests per function)
+9. Reproducibility (seeds, RNG kind)
+10. Citation hygiene (CITATION file, stable references)
+
+#### `audit code <pkg>`
+
+For any package before CRAN submission. Goes beyond `R CMD check`
+to catch edge-case bugs, numerical instability, weak error
+handling, cross-platform issues, and style problems. Uses:
+
+- `checklists/code-audit.md` as the driving checklist
+- `reference/code-audit-checklist.md` for the detailed heuristic
+- `reference/edge-cases.md` for the empty/length-1/NA/duplicates
+  quartet and domain-specific cases
+- `reference/numerical-stability.md` for overflow, underflow,
+  log-sum-exp, catastrophic cancellation
+- `reference/cross-platform-gotchas.md` for paths, encoding,
+  timezone traps
+- `reference/ropensci-standards.md` as an aspirational ceiling
+
+Output: a scorecard across 12 categories with severity-ranked
+findings and specific file:line references.
+
+Twelve categories audited:
+1. CRAN policy (hard blockers, delegated to preflight)
+2. Edge cases (empty, length-1, NA, duplicates, boundaries)
+3. Numerical stability (overflow, underflow, cancellation)
+4. Error handling (network, timeouts, malformed responses)
+5. Style and idioms (lintr, vapply, seq_along)
+6. Documentation quality (specific @return, meaningful @examples)
+7. Dependencies (justified imports, version floors)
+8. Cross-platform (paths, encoding, timezone)
+9. Reproducibility (seeds, no Sys.time defaults)
+10. Hidden gotchas (NULL vs missing, partial matching)
+11. Security (URL encoding, injection, key leakage) — n/a for
+    most packages
+12. Performance (accidental O(n²), rbind in loops)
+
+After the scorecard, propose a concrete pre-submission plan:
+which blockers to fix now, which warnings can wait for a v0.1.1
+patch.
+
+### Phase 7: `submit`
 
 1. Verify working tree is clean. If not, prompt user to commit.
 2. Verify current branch is pushed to `origin`. If not, push.
@@ -164,7 +236,7 @@ Do not proceed to `submit` if any hard-stop fails.
 6. On success, tell user: "check your email for the CRAN confirmation link — must click within a few hours."
 7. Record submission in `state/queue.jsonl` (optional, if state tracking enabled).
 
-### Phase 7: `resubmit`
+### Phase 8: `resubmit`
 
 Input: reviewer email content (user pastes it).
 

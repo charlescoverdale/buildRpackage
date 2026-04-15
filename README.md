@@ -83,11 +83,15 @@ In Claude Code:
 /cran-package plan <name>
 /cran-package build <name>
 /cran-package check
+/cran-package audit academic <name>    # deep methods + literature review
+/cran-package audit code <name>        # deep code + test quality review
 /cran-package submit
 /cran-package resubmit
 ```
 
 If you invoke `/cran-package` with no arguments, the skill asks which phase you want.
+
+**`check` vs `audit`**: `check` is the mechanical CRAN compliance pass. `audit` is the deep review that catches edge-case bugs, numerical instability, weak tests, and academic-credibility gaps. Run both before submitting.
 
 
 ## What the skill contains
@@ -129,12 +133,22 @@ cran-package/
     api-key-patterns.md
     testing-patterns.md
     common-first-notes.md
+    academic-audit-checklist.md    # for /audit academic
+    formula-verification.md        # domain-specific formula traps
+    test-adequacy.md               # four-level test quality model
+    code-audit-checklist.md        # for /audit code
+    edge-cases.md                  # empty, length-1, NA, duplicates, boundaries
+    numerical-stability.md         # overflow, underflow, log-sum-exp
+    cross-platform-gotchas.md      # paths, encoding, timezones
+    ropensci-standards.md          # aspirational ceiling
 
   checklists/
     preflight.md             # run every item before submit
     postflight.md            # what to do after a successful submission
     resubmission.md          # how to handle reviewer feedback
     naming-validation.md     # CRAN + GitHub + base R name availability
+    academic-audit.md        # 10-category academic scorecard
+    code-audit.md            # 12-category code/CRAN scorecard
 ```
 
 
