@@ -228,13 +228,57 @@ patch.
 
 ### Phase 7: `submit`
 
-1. Verify working tree is clean. If not, prompt user to commit.
-2. Verify current branch is pushed to `origin`. If not, push.
-3. Verify `cran-comments.md` exists and mentions the current version.
-4. Verify `NEWS.md` has an entry for the current version.
-5. Run: `assignInNamespace("yesno", function(...) FALSE, "devtools"); devtools::submit_cran()` — this bypasses the interactive prompt.
-6. On success, tell user: "check your email for the CRAN confirmation link — must click within a few hours."
-7. Record submission in `state/queue.jsonl` (optional, if state tracking enabled).
+**HARD GATES (refuse to run if any fail):**
+
+0. **User confirmed intent.** "Get it ready for submission" does NOT
+   mean submit. Only run `submit_cran()` when the user has given
+   explicit consent to submit in this session. If you are not sure,
+   ask first: "Ready to submit to CRAN now?"
+
+1. **Version check.** Read `Version:` from DESCRIPTION. Check whether
+   the package is already on CRAN:
+   ```r
+   # Returns TRUE if the package is currently or was previously on CRAN
+   cran_exists <- tryCatch({
+     url <- paste0("https://cran.r-project.org/package=", pkg_name)
+     httr2::req_perform(httr2::request(url))
+     TRUE
+   }, error = function(e) FALSE)
+   ```
+   - If **not on CRAN yet (first submission)**: version MUST be
+     `0.1.0`. If it is anything else (0.2.0, 1.0.0, etc.), STOP
+     and instruct the user:
+     > "This is a first submission but the version is X.Y.Z.
+     > CRAN policy expects first submissions to be 0.1.0.
+     > Bump DESCRIPTION to 0.1.0, consolidate NEWS.md into a
+     > single 0.1.0 entry, update cran-comments.md, then resubmit."
+   - If **on CRAN already (resubmission)**: version must be strictly
+     greater than the currently-live CRAN version.
+
+2. **Working tree is clean.** If `git status` shows changes, prompt
+   user to commit before submission.
+
+3. **Branch is pushed to origin.** Run `git push` if needed before
+   submission. CRAN policy requires the GitHub repo to reflect what
+   is being submitted.
+
+4. **cran-comments.md** exists and mentions the current version.
+
+5. **NEWS.md** has an entry for the current version.
+
+6. **If first submission, cran-comments.md says "New submission"**
+   (not "Resubmission"). Check for mis-labelling.
+
+**Only after all gates pass:**
+
+7. Run: `assignInNamespace("yesno", function(...) FALSE, "devtools"); devtools::submit_cran()` — this bypasses the interactive prompt.
+8. On success, tell user: "check your email for the CRAN confirmation link — must click within a few hours."
+9. Record submission in `state/queue.jsonl` (optional, if state tracking enabled).
+
+**If user wants to cancel a submission:** tell them not to click the
+confirmation email. Unconfirmed submissions are auto-discarded by
+CRAN after a few hours. Do not resubmit until the first submission
+has either expired (unconfirmed) or been processed.
 
 ### Phase 8: `resubmit`
 

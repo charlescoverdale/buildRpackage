@@ -2,12 +2,28 @@
 
 ## Rules
 
-1. **First submission uses 0.1.0**. CRAN reviewers expect new packages
-   to start here. Submitting a first version as 0.2.0, 1.0.0, or 2.3.4
-   is not forbidden but raises mild suspicion.
+1. **First submission MUST be 0.1.0**. CRAN reviewers expect new
+   packages to start here. Submitting a first version as 0.2.0,
+   1.0.0, or 2.3.4 is technically allowed but:
+   - Raises suspicion with reviewers
+   - Looks like an abandoned v0.1.0 nobody else uses
+   - Usually triggers a request to renumber
+   - Wastes at least one submission cycle (2-10 days)
 
-2. **Bump the patch version on every resubmission**, including trivial
-   fixes. Never resubmit the same version number.
+   If you have been developing the package on GitHub with
+   incremental versions (0.1.0, 0.2.0, etc.), for the CRAN
+   submission specifically, collapse all pre-CRAN versions into a
+   single 0.1.0 entry in NEWS.md and bump DESCRIPTION to 0.1.0.
+   Keep your GitHub tags intact; they don't need to match CRAN
+   version numbers.
+
+   **The `submit` phase of this skill hard-gates on this rule.** If
+   the DESCRIPTION version is anything other than 0.1.0 and the
+   package is not already on CRAN, the submit phase will refuse to
+   run and instruct the user to renumber first.
+
+2. **Bump the patch version on every resubmission**, including
+   trivial fixes. Never resubmit the same version number.
 
 3. **Every version needs a NEWS.md entry**. Even if the change is one
    line, the entry exists so downstream users know what changed.

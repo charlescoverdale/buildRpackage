@@ -20,6 +20,8 @@ Delegated to `checklists/preflight.md`:
 - [ ] `\dontrun` only for examples that genuinely cannot run
 - [ ] Every exported function has `@return` and runnable `@examples`
 - [ ] `R CMD check --as-cran` returns 0/0/0
+- [ ] **Version is `0.1.0` if this is a first submission** (check by
+  looking up the package name on CRAN; 404 means first submission)
 
 If any fails, **blocker**. Fix before continuing.
 

@@ -50,11 +50,29 @@ Items marked with (FIX) can be auto-fixed by the skill.
 - [ ] No `Rplots.pdf` in the package root (FIX: remove it)
 - [ ] No `.Rproj.user/` directory committed
 
-## Version
+## Version (HARD GATE)
 
-- [ ] Version in DESCRIPTION is correct
-- [ ] For first submission: 0.1.0
-- [ ] For resubmission: patch bumped from previous version
+- [ ] **First submission: version MUST be `0.1.0`**. If it is
+  anything else, STOP. Bump DESCRIPTION, consolidate NEWS.md into
+  a single 0.1.0 entry, and update cran-comments.md before
+  proceeding. Submitting 0.2.0 or higher as a first submission
+  triggers reviewer suspicion and often leads to a re-do.
+- [ ] **Resubmission (not currently on CRAN, e.g. archived):**
+  bump at least the patch version from the previously-submitted
+  version. Not 0.1.0.
+- [ ] **Update to live CRAN package:** version must be strictly
+  greater than the current CRAN version.
+
+To check whether a package is on CRAN:
+```r
+# 200 = currently on CRAN; 404 = never on CRAN or archived
+# (archived packages redirect to /src/contrib/Archive/<pkg>/)
+httr2::req_perform(httr2::request(
+  paste0("https://cran.r-project.org/package=", pkg_name)
+))
+```
+
+Alternatively search https://cran.r-project.org/ directly.
 
 ## Git state
 
