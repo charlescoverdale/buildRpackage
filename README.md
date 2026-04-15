@@ -10,7 +10,7 @@ The alternative is hosting on GitHub only. That works for personal use, but your
 
 ## Why this exists
 
-Hadley Wickham's [*R Packages*](https://r-pkgs.org) is the canonical book on how to structure an R package: `DESCRIPTION`, `R/`, roxygen, tests, the whole shape of it. Read it. But the book gets you to a working package, not a CRAN-accepted one.
+Hadley Wickham's [*R Packages*](https://r-pkgs.org) is the canonical book on how to structure an R package: `DESCRIPTION`, `R/`, roxygen, tests, the whole shape of it. But the book gets you to a working package, not a CRAN-accepted one.
 
 CRAN itself has accumulated a thick layer of policy over two decades. The rule that examples cannot write to the user's home directory, even via `tools::R_user_dir()`. The `globalenv()` prohibition that rejects packages even though they "work" locally. `\donttest` vs `\dontrun` behaving completely differently on CRAN's test systems. Version discipline: you cannot resubmit the same version number, so every round of reviewer feedback costs a patch bump. URL 404s in `DESCRIPTION` failing incoming feasibility when a pkgdown site is not yet deployed. Mozilla UA quirks for EU servers. Cross-platform path and encoding traps. The newbies queue for first submissions and the 2-10 business day wait that comes with it.
 
