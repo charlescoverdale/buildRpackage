@@ -2,6 +2,12 @@
 
 A [Claude Code](https://claude.com/claude-code) skill for shipping R packages to CRAN.
 
+## What is CRAN?
+
+CRAN is the **Comprehensive R Archive Network**: the default package repository that R installs from when a user runs `install.packages()`. It is the high bar and the wide audience. A CRAN package is discoverable in R's default search, installable on the most locked-down corporate network, gets a stable citable URL (`https://CRAN.R-project.org/package=yourpackage`), and carries the trust that comes from passing CRAN's quality gates.
+
+The alternative is hosting on GitHub only. That works for personal use, but your users need `devtools` or `remotes` installed, GitHub Pro URLs blocked by corporate firewalls are common, and the package never shows up in R's default search. CRAN is harder to get into, but once you are in, anyone running R anywhere can install your package.
+
 ## Why this exists
 
 Hadley Wickham's [*R Packages*](https://r-pkgs.org) is the canonical book on how to structure an R package: `DESCRIPTION`, `R/`, roxygen, tests, the whole shape of it. Read it. But the book gets you to a working package, not a CRAN-accepted one.
