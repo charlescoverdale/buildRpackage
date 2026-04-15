@@ -1,5 +1,7 @@
 # buildRpackage
 
+[![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](https://opensource.org/licenses/MIT)
+
 A [Claude Code](https://claude.com/claude-code) skill for shipping R packages to CRAN.
 
 ## What is CRAN?
