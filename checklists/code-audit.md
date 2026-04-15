@@ -22,8 +22,61 @@ Delegated to `checklists/preflight.md`:
 - [ ] `R CMD check --as-cran` returns 0/0/0
 - [ ] **Version is `0.1.0` if this is a first submission** (check by
   looking up the package name on CRAN; 404 means first submission)
+- [ ] **Every external data-source URL in R code returns HTTP 200**
+  (see Section 1a below; blocker for any data-access or API package)
 
 If any fails, **blocker**. Fix before continuing.
+
+## 1a. External URL verification (data-access / API packages)
+
+For data-access and API-wrapper packages, the URLs embedded in R
+code ARE the product. An R package that looks correct but points at
+404ing endpoints is broken by construction — every user call fails
+at runtime.
+
+**Gate**: for every URL that the package will send a request to (not
+just URLs in DESCRIPTION), verify live:
+
+```bash
+# For each URL found in R/*.R:
+curl -s -o /dev/null -w "%{http_code} %{url}\n" \
+  -H "User-Agent: Mozilla/5.0" \
+  "<URL>"
+```
+
+Expected: 200 (or 301/302 if the package follows redirects). A 404,
+403, 503, or connection timeout is a blocker.
+
+Common failure modes to detect:
+
+| Symptom | Usual cause | Fix |
+|---|---|---|
+| 404 | Publisher moved the file and used a new URL | Scrape the landing page for the current link, or bump the hard-coded URL |
+| 403 | Server requires a browser User-Agent | Set `Mozilla/5.0` in `req_user_agent()` |
+| 503 | Server is temporarily down | Retry later; if persistent, the endpoint is dead |
+| 429 | Rate limiting | Add `req_throttle()` |
+| Connection refused | Hostname no longer resolves | Service has shut down; drop the function |
+| 200 but empty body | Broken redirect or maintenance | Check `Content-Length` header; treat 0-byte response as failure |
+
+**Action before submit**: grep all R files for `http://` and `https://`,
+produce a list of every distinct URL, curl each one, report pass/fail.
+If any URL fails, either:
+
+1. Find a replacement URL on the same publisher's site
+2. Implement landing-page scraping to discover the current URL dynamically
+3. Drop the function that depends on the broken URL
+
+**Never ship a data-access function with a URL you haven't verified.**
+Users will report it as a bug within days. CRAN reviewers may also
+run the examples (on `--run-donttest`) and fail the submission.
+
+For sources with date-stamped filenames that change on each republication
+(GOV.UK attachments, CARB dashboards, Berkeley GSPP, World Bank), prefer
+scraping the landing page over hard-coding the current URL. Hard-coded
+URLs will break within months.
+
+Keep a comment in the R file noting when each URL was last verified,
+e.g. `# Verified 2026-04-15`. This helps future maintenance.
 
 ## 2. Edge cases
 

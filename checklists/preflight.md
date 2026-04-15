@@ -27,6 +27,20 @@ Items marked with (FIX) can be auto-fixed by the skill.
       urlchecker::url_check()
       ```
 - [ ] No pkgdown URL in DESCRIPTION unless the pkgdown site is actually deployed
+- [ ] **Every external URL in R code returns HTTP 200** (HARD GATE for
+      data-access and API-wrapper packages)
+      ```bash
+      # Extract URLs from R files and verify each with curl
+      grep -rhoE 'https?://[^"[:space:]]+' R/ | sort -u | \
+        while read url; do
+          code=$(curl -s -o /dev/null -w "%{http_code}" \
+                 -H "User-Agent: Mozilla/5.0" "$url")
+          echo "$code $url"
+        done
+      ```
+      Any 404, 403, connection refused, or timeout means that function is
+      broken for users. Fix before submission. See
+      `reference/code-audit-checklist.md` Section 1a for details.
 
 ## Documentation
 
