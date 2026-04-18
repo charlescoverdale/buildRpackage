@@ -42,6 +42,47 @@ Items marked with (FIX) can be auto-fixed by the skill.
       broken for users. Fix before submission. See
       `reference/code-audit-checklist.md` Section 1a for details.
 
+- [ ] **Every DOI referenced in the package resolves via CrossRef**
+      (HARD GATE for packages that cite papers, bundle research data,
+      or depend on academic replication archives). DOIs appear in three
+      places the URL grep above misses:
+      - `<doi:10.xxxx/yyyy>` in DESCRIPTION's Description field
+      - `\doi{10.xxxx/yyyy}` in roxygen R files and generated .Rd
+      - DOI strings stored in bundled metadata tables
+      CrossRef is the authoritative DOI registry. Do NOT verify via
+      `https://doi.org/<doi>` — publishers (AEA, Wiley, OUP, Elsevier)
+      routinely block bot traffic with 403s that are not real failures.
+      CrossRef's API never bot-blocks and distinguishes "real 404 (DOI
+      does not exist)" from "publisher blocked your UA".
+      ```bash
+      # Extract and verify every DOI in the package
+      {
+        grep -rhoE '<doi:[^>]+>' DESCRIPTION 2>/dev/null | \
+          sed -E 's/<doi:(.*)>/\1/'
+        grep -rhoE '\\doi\{[^}]+\}' R/ man/ 2>/dev/null | \
+          sed -E 's/\\doi\{(.*)\}/\1/'
+        grep -rhoE '10\.[0-9]{4,}/[A-Za-z0-9._/:-]+' R/ | \
+          grep -oE '10\.[0-9]{4,}/[A-Za-z0-9._/:-]+'
+      } | sort -u | while read doi; do
+        code=$(curl -s -o /dev/null -w "%{http_code}" \
+               -H "User-Agent: preflight-check" \
+               --max-time 10 \
+               "https://api.crossref.org/works/$doi")
+        echo "$code $doi"
+      done
+      ```
+      Any 404 from CrossRef means the DOI does not exist: either a
+      typo, stale pre-publication DOI, or paper was republished under
+      a new DOI. Fix before submission. Common causes:
+      - Pre-print DOI used instead of published-version DOI
+      - Journal ID (?id=...) captured instead of DOI
+      - Single-digit typo in volume/issue portion
+      - Manuscript number confused with article DOI
+      Consider adding a `test-urls.R` with `skip_on_cran()` and
+      `skip_if_offline()` that verifies every DOI in the package's
+      metadata table at local test time. This catches regressions that
+      R CMD check will not.
+
 ## Documentation
 
 - [ ] Every exported function has `@return`
