@@ -15,6 +15,52 @@ Items marked with (FIX) can be auto-fixed by the skill.
 - [ ] `tests/testthat/setup.R` sets the cache option to `tempfile(...)` if the package uses caching
 - [ ] No bundled files over 5 MB in `inst/` or `data/`
 
+- [ ] **No `\dontrun{}` in any roxygen example** unless the example genuinely cannot execute (credentials, interactive-only, irreversible system modification). CRAN reviewers will flag `\dontrun` wrapping slow-but-runnable or network code and demand `\donttest{}` instead. This is the recurring "Benjamin Altmann feedback" pattern.
+      ```bash
+      # Surface every \dontrun usage — inspect each one
+      grep -rn '\\dontrun' R/ man/
+      ```
+      For each match, confirm one of the valid reasons applies:
+      - Requires API key / OAuth token that cannot be embedded safely
+      - Opens an interactive UI (Shiny app, browser window)
+      - Makes irreversible changes (writes to `~`, modifies global config)
+      If none apply, rewrite to `\donttest{}` (see
+      `playbook/donttest-vs-dontrun.md`). `\donttest{}` is the default
+      for "works but too slow / too network-y for inline examples".
+      ivcheck 0.1.0 was rejected 2026-04-21 for `\dontrun{}` around a
+      pure-R simulation that took > 5 s — exactly the anti-pattern.
+
+- [ ] **Every `par()`, `options()`, and `setwd()` mutation inside `vignettes/`, `man/` examples, and `demo/` has a matching save-restore.** CRAN reviewers will reject otherwise; the user's session state must survive running your examples.
+      ```bash
+      # Find every mutation — each must have an adjacent save before and restore after
+      grep -rn -E 'par\(|options\(|setwd\(' vignettes/ man/ demo/ R/ 2>/dev/null
+      ```
+      Valid patterns:
+      ```r
+      # par()
+      oldpar <- par(no.readonly = TRUE)
+      par(mfrow = c(1, 2))
+      # ... plotting ...
+      par(oldpar)
+
+      # options()
+      oldopt <- options(digits = 3)
+      # ... code ...
+      options(oldopt)
+
+      # setwd() — avoid entirely in examples/vignettes if possible
+      oldwd <- getwd()
+      setwd(some_dir)
+      # ... code ...
+      setwd(oldwd)
+      ```
+      `par(new = TRUE)` and `par(mfrow = ...)` inside a function body
+      that uses `on.exit(par(oldpar), add = TRUE)` also satisfy this.
+      Reading `par()` (e.g. `par("mar")`) is safe; only mutations trigger
+      the rule. ivcheck 0.1.0 was rejected 2026-04-21 for a
+      `par(mfrow = c(1, 2))` in `vignettes/judge-designs.Rmd` with no
+      restore.
+
 ## R CMD check
 
 - [ ] `devtools::check(cran = TRUE)` returns 0 errors, 0 warnings

@@ -15,6 +15,7 @@ each issue:
   - globalenv manipulation → `playbook/globalenv-manipulation.md`
   - Unused imports → `playbook/unused-importfrom.md`
   - `\dontrun` vs `\donttest` → `playbook/donttest-vs-dontrun.md`
+  - `par()` / `options()` / `setwd()` not restored → `playbook/save-restore-user-state.md`
   - Other → document in cran-comments.md
 
 ## 2. Apply the fixes
