@@ -129,6 +129,26 @@ Items marked with (FIX) can be auto-fixed by the skill.
       metadata table at local test time. This catches regressions that
       R CMD check will not.
 
+- [ ] **Every DOI's metadata matches the claimed authors / title / year**
+      (HARD GATE for packages that cite papers). Resolution is not
+      enough. The AI-generated failure mode that has bitten this
+      author's papers is a real DOI paired with fabricated authors or
+      title: DOI `10.48550/arXiv.2112.08092` resolves cleanly, but
+      the paper at that arXiv ID is by Carr and Kitagawa, not
+      Kitagawa and Sun as the bib entry claimed. Run the metadata
+      verification script from the r-article skill against any bib
+      file or metadata table that carries DOIs:
+      ```bash
+      Rscript ~/.claude/skills/r-article/checklists/verify-bib.R \
+        path/to/references.bib
+      ```
+      For DOIs stored in a bundled metadata table (not a `.bib`),
+      loop the same CrossRef + DataCite lookup over the table and
+      compare the returned `author`, `title`, and `issued.date-parts`
+      fields against the table's `authors`, `title`, and `year`
+      columns. Any first-author surname mismatch or title-word
+      overlap below 0.30 is a hard stop.
+
 ## Documentation
 
 - [ ] Every exported function has `@return`

@@ -27,9 +27,21 @@ each issue:
 
 ## 3. Update version
 
-- [ ] Bump patch version in DESCRIPTION (e.g. 0.1.0 → 0.1.1)
-- [ ] Add entry to NEWS.md for the new version
-- [ ] Summarise the fixes in one or two lines per issue
+**First determine the regime** — this gate is non-negotiable, see
+`playbook/version-discipline.md`:
+
+- **Pretest failure** (email says "does not pass the incoming
+  checks automatically", package never reached CRAN):
+  - [ ] Keep the same version (first submissions stay at 0.1.0)
+  - [ ] Do NOT add a new NEWS.md entry; update the existing
+        version entry if the fix is worth recording, or leave
+        NEWS alone
+  - [ ] cran-comments.md header: "Resubmission (same version)"
+- **Post-acceptance reviewer feedback** (human reviewer, package
+  was on CRAN):
+  - [ ] Bump patch version in DESCRIPTION (e.g. 0.2.0 → 0.2.1)
+  - [ ] Add entry to NEWS.md for the new version
+  - [ ] Summarise the fixes in one or two lines per issue
 
 ## 4. Update cran-comments.md
 
@@ -59,8 +71,11 @@ devtools::submit_cran()
 
 ## Things to watch for
 
-- **Don't resubmit with the same version number**. CRAN won't process
-  duplicates. If you submitted 0.1.0 and got feedback, submit 0.1.1.
+- **Version rule depends on regime.** Pretest-stage rejection
+  keeps the same version; post-acceptance rejection bumps. If in
+  doubt, check `cran.r-project.org/package=<name>` — if the
+  package is not listed, no version was ever released, so keep the
+  number.
 
 - **Don't argue with reviewers unless they're factually wrong**. If a
   reviewer asks for a change that's purely stylistic, make it. It's

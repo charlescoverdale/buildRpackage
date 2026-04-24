@@ -22,8 +22,29 @@
    package is not already on CRAN, the submit phase will refuse to
    run and instruct the user to renumber first.
 
-2. **Bump the patch version on every resubmission**, including
-   trivial fixes. Never resubmit the same version number.
+2. **Bump the patch version on every resubmission of an
+   already-accepted package**, including trivial fixes. Never
+   resubmit the same version number once a version has shipped to
+   CRAN.
+
+   **CRITICAL exception — pre-acceptance resubmissions keep the
+   same version.** If the package failed CRAN's automatic incoming
+   checks (pretest NOTE from win-builder / Debian), the tarball was
+   rejected at the gate and nothing was released. Keep the version
+   number the same. For a first submission this means 0.1.0 stays
+   0.1.0 through every pretest cycle until CRAN actually accepts
+   it. Bumping 0.1.0 → 0.1.1 after a pretest failure is wrong: no
+   0.1.0 was ever released, so a 0.1.1 entry in NEWS.md refers to
+   an imaginary prior release. Update `cran-comments.md` to say
+   "Resubmission (same version)" and enumerate the fixes there.
+
+   **How to tell which regime you're in:**
+   - Pretest failure email contains "does not pass the incoming
+     checks automatically" and the package is NOT visible at
+     `cran.r-project.org/package=<name>` → keep version.
+   - Reviewer feedback email from a human CRAN maintainer, or the
+     package has ever been on CRAN (including archived) → bump
+     version.
 
 3. **Every version needs a NEWS.md entry**. Even if the change is one
    line, the entry exists so downstream users know what changed.
@@ -38,8 +59,17 @@
 
 ## Common mistakes
 
-- Submitting 0.1.0, getting feedback, fixing, and resubmitting 0.1.0.
-  CRAN will not process the new tarball. Bump to 0.1.1.
+- **Bumping 0.1.0 → 0.1.1 after a pretest-stage rejection of a
+  first submission.** Pretest rejections do not publish anything;
+  keep 0.1.0 until CRAN actually accepts the upload. The NEWS.md
+  must not grow a 0.1.1 entry for a version that never shipped.
+  This has happened multiple times — the rule is: bump only after
+  a real release. Last incident: cer 0.1.0, 2026-04-24. See rule 2
+  above for the trigger-phrase test.
+
+- Submitting 0.2.1 after 0.2.0 was accepted, then getting reviewer
+  feedback and resubmitting as 0.2.1 again. CRAN will not process
+  duplicates once a version is on the system. Bump to 0.2.2.
 
 - Forgetting to update NEWS.md when bumping. `R CMD check` does not
   catch this; CRAN reviewers sometimes do.
